@@ -1,0 +1,133 @@
+<template>
+    <template if:true={isLoading}>
+        <div class="slds-spinner_container">
+            <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+        </div>
+    </template>
+
+    <template if:false={isLoading}>
+        <section class={isFullScreenClass} role="dialog" tabindex="-1">
+           
+
+            <h2 class="slds-modal__title header">Add Product & Program Mapping  <lightning-button variant="neutral" label="FullScreen" onclick={handleToggleFullScreen} class="fullscreen-toggle slds-m-bottom_small"></lightning-button></h2>
+            <div class={containerClass}>
+                <div class="search-bar">
+                    <lightning-input class="search-input" type="search" placeholder="Search products..."
+                        variant="label-hidden" value={searchTerm} onchange={handleSearch}>
+                    </lightning-input>
+
+                    <lightning-button-icon icon-name="utility:filterList" alternative-text="Filter" title="Filter"
+                        onclick={toggleFilterModal} class="filter-icon">
+                    </lightning-button-icon>
+                </div>
+
+                <div class="scroll-container">
+                    <lightning-button variant="neutral" label="Reset Year" onclick={handleResetYear} class="slds-m-bottom_small"></lightning-button>
+                    <table class="slds-table slds-table_bordered slds-table_cell-buffer fixed-table">
+                        <thead>
+                            <tr>
+                                <th class="sticky-col sticky-head left-col-1"></th>
+                                <th class="sticky-col sticky-head left-col-2">{nameLabel}</th>
+                                <th class="sticky-col sticky-head left-col-3">{currentSOBLabel}</th>
+                                <th class="sticky-col sticky-head left-col-4">{priceLabel}</th>
+                                <template for:each={financialYears} for:item="year">
+                                    <th key={year.headerKey} colspan="3">{year.label}</th>
+                                </template>
+                            </tr>
+                            <tr>
+                                <th class="sticky-col left-col-1"></th>
+                                <th class="sticky-col left-col-2"></th>
+                                <th class="sticky-col left-col-3"></th>
+                                <th class="sticky-col left-col-4"></th>
+                                <template for:each={financialYears} for:item="year">
+                                    <th key={year.appKey}>Applicability</th>
+                                    <th key={year.servKey}>Serviceability</th>
+                                    <th key={year.sobKey}>SOB</th>
+                                </template>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={products} for:item="product">
+                                <tr key={product.id}>
+                                    <td class="sticky-col left-col-1">
+                                        <lightning-input type="checkbox" checked={product.selected}
+                                            data-productid={product.id} onchange={handleSelection}>
+                                        </lightning-input>
+                                    </td>
+                                    <td class="sticky-col left-col-2 product-names">{product.name}</td>
+                                    <td class="sticky-col left-col-3">
+                                        <lightning-input type="number" variant="label-hidden" label={currentSOBLabel}
+                                            value={product.currentSOB} data-productid={product.id}
+                                            data-field="currentSOB" onchange={handleInputChange}>
+                                        </lightning-input>
+                                    </td>
+                                    <td class="sticky-col left-col-4">
+                                        <lightning-input type="number" variant="label-hidden" label={priceLabel} value={product.price}
+                                            data-productid={product.id} data-field="price" onchange={handleInputChange}>
+                                        </lightning-input>
+                                    </td>
+                                    <template for:each={product.yearData} for:item="fy">
+                                        <td key={fy.appKey}>
+                                            <lightning-input type="number" variant="label-hidden"
+                                                value={fy.applicability} data-productid={product.id}
+                                                data-year={fy.yearId} data-field="applicability"
+                                                onchange={handleInputChange}>
+                                            </lightning-input>
+                                        </td>
+                                        <td key={fy.servKey}>
+                                            <lightning-input type="number" variant="label-hidden"
+                                                value={fy.serviceability} data-productid={product.id}
+                                                data-year={fy.yearId} data-field="serviceability"
+                                                onchange={handleInputChange}>
+                                            </lightning-input>
+                                        </td>
+                                        <td key={fy.sobKey}>
+                                            <lightning-input type="number" variant="label-hidden" value={fy.sob}
+                                                data-productid={product.id} data-year={fy.yearId} data-field="sob"
+                                                onchange={handleInputChange}>
+                                            </lightning-input>
+                                        </td>
+                                    </template>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <footer class="slds-modal__footer footer sticky-footer">
+                <lightning-button variant="neutral" label="Cancel" onclick={handleCancel}></lightning-button>
+                <lightning-button variant="brand" label="Submit" onclick={handleSubmit}></lightning-button>
+            </footer>
+        </section>
+    </template>
+
+    <template if:true={showFilterModal}>
+        <section class="slds-modal slds-fade-in-open filter-modal" role="dialog">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 class="slds-modal__title">Filter Products</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-dual-listbox name="power" label="Power" source-label="Available"
+                        selected-label="Selected" options={powerOptions} value={tempPower}
+                        onchange={handleTempPowerChange}>
+                    </lightning-dual-listbox>
+
+                    <lightning-dual-listbox name="segment" label="Segment" source-label="Available"
+                        selected-label="Selected" options={segmentOptions} value={tempSegment}
+                        onchange={handleTempSegmentChange}>
+                    </lightning-dual-listbox>
+
+                </div>
+                <footer class="slds-modal__footer footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={handleFilterCancel}></lightning-button>
+                    <lightning-button variant="brand" label="Done" onclick={handleFilterDone}></lightning-button>
+
+                </footer>
+            </div>
+        </section>
+        <!-- <div class="slds-backdrop slds-backdrop_open"></div> -->
+    </template>
+
+</template>
